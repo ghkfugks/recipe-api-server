@@ -49,7 +49,7 @@ class RecipeResource(Resource) :
             # 문자열로 바꿔서 다시 저장해서 보낸다.
 
             result_list[0]['created_at'] = str(result_list[0]['created_at'])
-            result_list[0]['updated_at'] = str(result_list[0]['updated_at'])
+            result_list[0]['d_at'] = str(result_list[0]['d_at'])
 
             # 6. 자원 해제
             cursor.close()
@@ -81,7 +81,7 @@ class RecipeResource(Resource) :
             connection = get_connection()
             
             # 2. 쿼리문 만들기
-            query = '''update recipe
+            query = ''' recipe
                     set name = %s,
                     description = %s, 
                     cook_time = %s, 

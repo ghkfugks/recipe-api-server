@@ -3,9 +3,8 @@ from flask import request
 from flask_restful import Resource
 from mysql.connector.errors import Error
 from mysql_connection import get_connection
-
 import mysql.connector
-from mysql_connection import get_connection
+
 
 ### API 를 만들기 위한 클래스 작성
 ### class(클래스) 란 변수와 함수로 구성된 묶음 !
@@ -70,8 +69,10 @@ class RecipeListResource(Resource) :
             connection = get_connection()
             
             # 2. 쿼리문 만들기
-            query = '''select * from recipe
-                        limit {}, {};'''.format(offset, limit)                  
+            query = '''select * 
+                        from recipe
+                        where is_publish = 1
+                        limit;''' +offset+''','''+limit+''';'''              
 
             # 3. 커서를 가져온다.
             # select를 할 때는 dictionary = True로 설정한다.
@@ -92,7 +93,7 @@ class RecipeListResource(Resource) :
             i=0
             for record in result_list :
                 result_list[i]['created_at'] = record['created_at'].isoformat()
-                result_list[i]['updated_at'] = record['updated_at'].isoformat()
+                result_list[i]['d_at'] = record['d_at'].isoformat()
                 i = i+1
             # 6. 자원 해제
             cursor.close()
