@@ -1,5 +1,7 @@
+import datetime
 from http import HTTPStatus
 from flask import request
+from flask_jwt_extended import create_access_token
 from flask_restful import Resource
 from mysql.connector.errors import Error
 from mysql_connection import get_connection
@@ -74,14 +76,24 @@ class UserRegisterResource(Resource) :
             cursor.close()
             connection.close()
 
+        
+
         except mysql.connector.Error as e :
             print(e)
             cursor.close()
             connection.close()
             return {"error" : str(e)}, 503
 
+        # user_id 를 바로 보내면 안되고
+        # JWT 로 암호화해서 보내준다.
+        # 암호화 하는 방법
+        access_token  = create_access_token(user_id , 
+                                    expires_delta=datetime.timedelta(minutes=1) )
+
+       
+
         
-        return {'result' : 'success' , 'user_id' : user_id} , 200
+        return {'result' : 'success' , 'access_token' : access_token} , 200
 
 
 class UserLoginResource(Resource) :
@@ -154,12 +166,14 @@ class UserLoginResource(Resource) :
         check = check_password(data['password'], user_info['password'])
         
         if check == False :
-            return {'error' : '비밀번호가 맞지 않습니다.'} , 400
+            return {'error' : '비밀번호가 맞지 않습니다.'} 
+
+        access_token = create_access_token(user_info['id'],expires_delta=datetime.timedelta(minutes=1))
 
 
 
 
 
-        return  {'result' : 'success' , 'user_id' : user_info['id']} , 200
+        return  {'result' : 'success' , 'access_token' : access_token} , 200
 
     

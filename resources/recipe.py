@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from flask import request
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restful import Resource
 from mysql.connector.errors import Error
 from mysql_connection import get_connection
@@ -14,12 +15,18 @@ import mysql.connector
 
 class RecipeListResource(Resource) :
     # restful api 의 method 에 해당하는 함수 작성
+
+    @jwt_required()
     def post(self) :
         # api 실행 코드를 여기에 작성
         
         # 클라이언트에서 body 부분에 작성한 json을 
         # 받아오는 코드
         data = request.get_json()
+
+        user_id = get_jwt_identity()
+
+
         # 받아온 데이터를 디비 저장하면 된다.
         try :
             # 데이터 insert
@@ -33,7 +40,7 @@ class RecipeListResource(Resource) :
                     (%s, %s, %s, %s , %s);'''
                     
             # recode 는 튜플 형태로 만든다.
-            recode = (data['name'], data['description'], data['cook_time'], data['directions'],data['user_id'])
+            recode = (data['name'], data['description'], data['cook_time'], data['directions'], user_id)
 
             # 3. 커서를 가져온다.
             cursor = connection.cursor()
@@ -109,3 +116,4 @@ class RecipeListResource(Resource) :
             "result" : "success",
             "count" : len(result_list),
             "result_list" : result_list}, 200
+        
